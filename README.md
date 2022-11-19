@@ -10,5 +10,7 @@ Extract content from html content.
 | Packages | Version |
 |----------|---------|
 | requests | latest  |
+| bs4      | latest  |
+| lxml     | latest  |
 
 
