@@ -94,13 +94,13 @@ class htmlScraper:
         
         return ret.getText()
     
-    def getAllHtml(self, selector:str, next:str, nextAttr:str='href') -> Tag:
+    def getAllHtml(self, selector:str, next:str=None, nextAttr:str='href') -> Tag:
         """
         Make http get request with self.url and extract all elements from received html content.
         
         Parameter:
             selector: string css selector to extract multiple html elements
-            next: string css selector to select element contains url to next page
+            next: string css selector to select element contains url to next page. (can be None, default None)
             nextAttr: string html attribute of "next" html element. (default "href")
         
         Returns:
@@ -119,7 +119,10 @@ class htmlScraper:
                     return None
                 
                 ret.append(soup.select(selector))
-                url = soup.select_one(next)
+                if next is not None:
+                    url = soup.select_one(next)
+                else:
+                    url = None
                 if url is None:
                     break
                 url = url.get(nextAttr)
@@ -153,7 +156,10 @@ class htmlScraper:
                     return None
                 
                 ret.append([t.getText() for t in soup.select(selector)])
-                url = soup.select_one(next)
+                if next is not None:
+                    url = soup.select_one(next)
+                else:
+                    url = None
                 if url is None:
                     break
                 url = url.get(nextAttr)
