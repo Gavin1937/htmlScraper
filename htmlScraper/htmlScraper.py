@@ -19,10 +19,12 @@ class htmlScraper:
     
     Properties:
         url: string url
+        encoding: string encoding of html content
     """
     
-    def __init__(self, url:str):
+    def __init__(self, url:str, encoding:str='utf-8'):
         self.url:str = url
+        self.encoding:str = encoding
     
     
     # api
@@ -30,7 +32,13 @@ class htmlScraper:
         """
         update self.url property.
         """
-        self.url = url
+        self.url:str = url
+    
+    def updateEncoding(self, encoding:str) -> None:
+        """
+        update self.encoding property.
+        """
+        self.encoding:str = encoding
     
     def getOneHtml(self, selector:str) -> Tag:
         """
@@ -49,7 +57,7 @@ class htmlScraper:
         try:
             res = requests.get(url, headers=HEADERS)
             if res.ok:
-                soup:BeautifulSoup = BeautifulSoup(res.content.decode('utf-8'), 'lxml')
+                soup:BeautifulSoup = BeautifulSoup(res.content.decode(self.encoding), 'lxml')
             else:
                 raise RequestFailed(f'Failed to request url = {url}')
             
@@ -76,7 +84,7 @@ class htmlScraper:
         try:
             res = requests.get(url, headers=HEADERS)
             if res.ok:
-                soup:BeautifulSoup = BeautifulSoup(res.content.decode('utf-8'), 'lxml')
+                soup:BeautifulSoup = BeautifulSoup(res.content.decode(self.encoding), 'lxml')
             else:
                 raise RequestFailed(f'Failed to request url = {url}')
             
@@ -86,4 +94,71 @@ class htmlScraper:
         
         return ret.getText()
     
+    def getAllHtml(self, selector:str, next:str, nextAttr:str='href') -> Tag:
+        """
+        Make http get request with self.url and extract all elements from received html content.
+        
+        Parameter:
+            selector: string css selector to extract multiple html elements
+            next: string css selector to select element contains url to next page
+            nextAttr: string html attribute of "next" html element. (default "href")
+        
+        Returns:
+            if success, return list of html elements selected (list[bs4.ResultSet[bs4.element.Tag]])
+            if failed, return None
+        """
+        
+        url = self.url
+        ret:list = []
+        try:
+            while url is not None and len(url) > 0:
+                res = requests.get(url, headers=HEADERS)
+                if res.ok:
+                    soup:BeautifulSoup = BeautifulSoup(res.content.decode(self.encoding), 'lxml')
+                else:
+                    return None
+                
+                ret.append(soup.select(selector))
+                url = soup.select_one(next)
+                if url is None:
+                    break
+                url = url.get(nextAttr)
+        except Exception as e:
+            raise
+        
+        return ret
+    
+    def getAllStr(self, selector:str, next:str, nextAttr:str='href') -> Tag:
+        """
+        Make http get request with self.url and extract text of all elements from received html content.
+        
+        Parameter:
+            selector: string css selector to extract multiple html elements
+            next: string css selector to select element contains url to next page
+            nextAttr: string html attribute of "next" html element. (default "href")
+        
+        Returns:
+            if success, return list of text selected (list[list[str]])
+            if failed, return None
+        """
+        
+        url = self.url
+        ret:list = []
+        try:
+            while url is not None and len(url) > 0:
+                res = requests.get(url, headers=HEADERS)
+                if res.ok:
+                    soup:BeautifulSoup = BeautifulSoup(res.content.decode(self.encoding), 'lxml')
+                else:
+                    return None
+                
+                ret.append([t.getText() for t in soup.select(selector)])
+                url = soup.select_one(next)
+                if url is None:
+                    break
+                url = url.get(nextAttr)
+        except Exception as e:
+            raise
+        
+        return ret
     
