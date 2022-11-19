@@ -118,7 +118,7 @@ class htmlScraper:
                 else:
                     return None
                 
-                ret.append(soup.select(selector))
+                ret += [s for s in soup.select(selector)]
                 if next is not None:
                     url = soup.select_one(next)
                 else:
@@ -155,7 +155,7 @@ class htmlScraper:
                 else:
                     return None
                 
-                ret.append([t.getText() for t in soup.select(selector)])
+                ret += [s.getText() for s in soup.select(selector)]
                 if next is not None:
                     url = soup.select_one(next)
                 else:
