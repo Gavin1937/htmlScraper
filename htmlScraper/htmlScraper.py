@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import requests
+from time import sleep
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from .exceptions import RequestFailed
@@ -94,7 +95,7 @@ class htmlScraper:
         
         return ret.getText()
     
-    def getAllHtml(self, selector:str, next:str=None, nextAttr:str='href') -> Tag:
+    def getAllHtml(self, selector:str, next:str=None, nextAttr:str='href', delaySec:float=0.3) -> Tag:
         """
         Make http get request with self.url and extract all elements from received html content.
         
@@ -102,6 +103,7 @@ class htmlScraper:
             selector: string css selector to extract multiple html elements
             next: string css selector to select element contains url to next page. (can be None, default None)
             nextAttr: string html attribute of "next" html element. (default "href")
+            delaySec: float second delays between each http get request. (default 0.3)
         
         Returns:
             if success, return list of html elements selected (list[bs4.ResultSet[bs4.element.Tag]])
@@ -126,12 +128,13 @@ class htmlScraper:
                 if url is None:
                     break
                 url = url.get(nextAttr)
+                sleep(delaySec)
         except Exception as e:
             raise
         
         return ret
     
-    def getAllStr(self, selector:str, next:str, nextAttr:str='href') -> Tag:
+    def getAllStr(self, selector:str, next:str, nextAttr:str='href', delaySec:float=0.3) -> Tag:
         """
         Make http get request with self.url and extract text of all elements from received html content.
         
@@ -139,6 +142,7 @@ class htmlScraper:
             selector: string css selector to extract multiple html elements
             next: string css selector to select element contains url to next page
             nextAttr: string html attribute of "next" html element. (default "href")
+            delaySec: float second delays between each http get request. (default 0.3)
         
         Returns:
             if success, return list of text selected (list[list[str]])
@@ -163,6 +167,7 @@ class htmlScraper:
                 if url is None:
                     break
                 url = url.get(nextAttr)
+                sleep(delaySec)
         except Exception as e:
             raise
         
